@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.x'
 
@@ -32,7 +32,8 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Downloading target file from ${{ inputs.app_url }}..."
-          Invoke-WebRequest -Uri "${{ inputs.app_url }}" -OutFile "TickTick.exe"
+          # 增加 UserAgent 请求头，防止被服务器或 CDN 防火墙拦截
+          Invoke-WebRequest -Uri "${{ inputs.app_url }}" -OutFile "TickTick.exe" -UserAgent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
 
       - name: Run Patcher
         # We can just build and run directly via dotnet run
@@ -45,7 +46,7 @@ jobs:
             Write-Error "Patching failed: TickTick_Patched.exe not generated."
             exit 1
           }
-          Compress-Archive -Path "TickTick_Patched.exe" -DestinationPath "TickTick_Patched.zip"
+          Compress-Archive -Path "TickTick_Patched.exe" -DestinationPath "TickTick_Patched.zip" -Force
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
