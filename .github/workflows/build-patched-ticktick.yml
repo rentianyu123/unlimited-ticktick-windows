@@ -1,12 +1,7 @@
 name: Build and Release Patched TickTick
 
 on:
-  workflow_dispatch:
-    inputs:
-      app_url:
-        description: "Direct URL to your original TickTick.exe file"
-        required: true
-        type: string
+  workflow_dispatch: # 不再需要 inputs 变量
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,15 +23,8 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Download TickTick Setup
-        shell: pwsh
-        run: |
-          Write-Host "Downloading target file from ${{ inputs.app_url }}..."
-          # 增加 UserAgent 请求头，防止被服务器或 CDN 防火墙拦截
-          Invoke-WebRequest -Uri "${{ inputs.app_url }}" -OutFile "TickTick.exe" -UserAgent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-
+      # 已删除下载步骤，直接运行补丁程序
       - name: Run Patcher
-        # We can just build and run directly via dotnet run
         run: dotnet run -- "TickTick.exe"
 
       - name: Prepare Release Package
